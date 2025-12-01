@@ -10,25 +10,46 @@ int LineParse(std::string element)
     return element.substr(0, 1) == "L" ? result*-1 : result;
 }
 
-int ReadFile(std::string fileName, int start)
+int ReadFile(std::string fileName, int start, int partProblem)
 {
     int temp = start;
+    int result = 0;
     std::ifstream file(fileName);
     std::string line;
     
     if(file.is_open()) {
         while(getline(file, line)) {
-            std::cout << line << '\n';
             //parse
+            std::cout << "parse :" << LineParse(line) << "\n";
             //calcul previous + line
+            temp = (temp + LineParse(line)) % 100;
+            std::cout << "temp :" << temp << "\n";
             //check if +1 or not
+            switch (partProblem)
+            {
+                case 1:
+                    if (temp == 0)
+                    {
+                        result++;
+                    }
+                    break;
+                /*case 2:
+                    if (temp)
+                    {
+                    }
+                    break;*/
+                default:
+                    break;
+            }
+            
+            std::cout << " ----------------------------------- \n";
         }
         file.close();
     } else {
         std::cout << "Impossible d'ouvrir le fichier." << std::endl;
     }
     
-    return 0;
+    return result;
 }
 
 
@@ -39,5 +60,10 @@ int main()
     std::cout << "Enter the input file: ";
     std::cin >> filePath;
 
-    ReadFile(filePath, 0);
+    //   ../Inputs/input.txt
+    //PART 1 -------------------------------------------------
+    std::cout << ReadFile(filePath, 50, 1);
+
+    //PART 2 -------------------------------------------------
+    //std::cout << ReadFile(filePath, 0, 2);
 }
