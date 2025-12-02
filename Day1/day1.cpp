@@ -1,6 +1,8 @@
 #include <iostream>
 #include <fstream>
+#include <assert.h>
 #include <string>
+#include <cmath>
 
 
 
@@ -10,82 +12,59 @@ int LineParse(std::string element)
     return element.substr(0, 1) == "L" ? result*-1 : result;
 }
 
-//void ParseCalculResult(int resultAddition)
-std::pair<int, int> ParseCalculResult(int resultAddition)
+std::pair<int, int> ParseDelta(int delta)
 {
-    std::cout << "temp :" << resultAddition << "\n";
-
     int centaine;
     int dizaine;
-
-    // si le nombre est composé de 1 ou 2 chiffres
-    if (resultAddition < 0)
-    {
-        std::string numberToGetDizaine = std::to_string(resultAddition);
-        resultAddition = std::stoi(numberToGetDizaine.substr(1));
-    }
+    delta = abs(delta);
     
-    if (resultAddition < 100)
-    {
-        centaine = 0;
-        dizaine = resultAddition;
-    }
-    else
-    {
-        centaine = resultAddition / 100;
-
-        std::string numberToGetDizaine = std::to_string(resultAddition);
-        dizaine = std::stoi(numberToGetDizaine.substr(numberToGetDizaine.length()-2));
-    }
+    centaine = delta < 100 ? 0 : delta / 100;
+    dizaine = delta < 100 ? delta : delta % 100;
 
     return std::make_pair(centaine, dizaine);
 }
 
-int CalculNumberZeroCrossing(int centaine, int dizaine, int start, int temp)
-{
-    
-    //return crossingNumber;
-}
-
 int ReadFile(std::string fileName, int start, int partProblem)
 {
-    int temp = start;
+    int decoyValue = start;
     int result = 0;
     std::ifstream file(fileName);
     std::string line;
     
     if(file.is_open()) {
         while(getline(file, line)) {
-            //parse
-            std::cout << "parse :" << LineParse(line) << "\n";
-            //check if +1 or not
+            int delta = LineParse(line);
             switch (partProblem)
             {
                 case 1:
                 {
-                    //calcul previous + line
-                    temp = (temp + LineParse(line)) % 100;
-                    if (temp == 0)
-                    {
-                        result++;
-                    }
+                    decoyValue = (decoyValue + delta) % 100;
+                    result += decoyValue == 0 ? 1 : 0;
+
                     break;
                 }
                 case 2:
                 {
-                    temp = temp + LineParse(line);
-                    std::pair<int, int> decomposition = ParseCalculResult(temp);
-                    std::cout << "CENTAINE  :" << decomposition.first << "\n";
-                    std::cout << "DIZAINE :" << decomposition.second << "\n";
-                    //result += CalculNumberZeroCrossing(decomposition.first, decomposition.second, start, temp);
-                    //std::cout << "result temporaire :" << result << "\n";
+                    std::pair<int, int> splitDelta = ParseDelta(delta);
+
+                    result += splitDelta.first;                                     //=> we add the value of the hundred to the result
+                    if (delta < 0)                                                  // if rotation is to the left (Lxx) =>  we add +1 if the tens number is bigger than the current decoy value
+                    {
+                        result += (splitDelta.second >= decoyValue && decoyValue != 0) ? 1 : 0;
+                    }
+                    else                                                            // if rotation is to the right (Rxx) =>  we add +1 if the tens number exceeds the value to reach zero on decoy
+                    {
+                        result += splitDelta.second >= 100 - decoyValue ? 1 : 0;
+                    }
+
+                    decoyValue = (decoyValue + delta) % 100;                        //we get value between -99 and 99
+                    decoyValue = decoyValue < 0 ? decoyValue + 100 : decoyValue;    //we get value between 0 and 99
+
                     break;
                 }
                 default:
                     break;
             }
-            
-            std::cout << " ----------------------------------- \n";
         }
         file.close();
     } else {
@@ -103,6 +82,8 @@ int main()
     std::cin >> filePath;
 
     //   ../Inputs/input.txt
+    //   ../Inputs/inputTest.txt
+
     //PART 1 -------------------------------------------------
     //std::cout << ReadFile(filePath, 50, 1);
 
