@@ -68,7 +68,7 @@ int ReadFile(std::string fileName, int start, int partProblem)
         }
         file.close();
     } else {
-        std::cout << "Impossible d'ouvrir le fichier." << std::endl;
+        std::cout << "Cannot open the file." << std::endl;
     }
     
     return result;
