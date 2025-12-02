@@ -89,4 +89,6 @@ int main()
 
     //PART 2 -------------------------------------------------
     std::cout << ReadFile(filePath, 50, 2);
+
+    return 0;
 }
