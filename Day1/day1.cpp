@@ -24,7 +24,7 @@ std::pair<int, int> ParseDelta(int delta)
     return std::make_pair(centaine, dizaine);
 }
 
-int ReadFile(std::string fileName, int start, int partProblem)
+int GetPassword(std::string fileName, int start, int partProblem)
 {
     int decoyValue = start;
     int result = 0;
@@ -85,10 +85,10 @@ int main()
     //   ../Inputs/inputTest.txt
 
     //PART 1 -------------------------------------------------
-    //std::cout << ReadFile(filePath, 50, 1);
+    //std::cout << GetPassword(filePath, 50, 1);
 
     //PART 2 -------------------------------------------------
-    std::cout << ReadFile(filePath, 50, 2);
+    std::cout << GetPassword(filePath, 50, 2);
 
     return 0;
 }
