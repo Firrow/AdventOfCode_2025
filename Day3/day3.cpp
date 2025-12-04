@@ -40,7 +40,12 @@ int GetPositionInVector(std::vector<int>& v, int searchValue)
     return std::find(v.begin(), v.end(), searchValue) - v.begin();
 }
 
-int GetHighterJoltagePart1(std::vector<int>& batteriesBank)
+// FIRST SOLUTION FOUND FOR PART 1 :
+//1. Get the bigger element of the bank
+//2. Create a number of two element with all digit before and after the bigger
+//3. At each time you create a number, compare it with the previous to know which one is the biggest
+//4. return the last biggest
+/*int GetHighterJoltagePart1(std::vector<int>& batteriesBank)
 {
     int biggerJoltagInBank = -1;
     int totalJoltageOfBank = -1;
@@ -79,77 +84,44 @@ int GetHighterJoltagePart1(std::vector<int>& batteriesBank)
     }
 
     return totalJoltageOfBank;
-}
+}*/
 
-std::int64_t GetHighterJoltagePart2(std::vector<int>& batteriesBank, int batteriesQuantity)
+// SOLUTION FOUND FOR PART 2 WHO WORK FOR THE PART 1 TOO
+std::int64_t GetHighterJoltage(std::vector<int>& batteriesBank, int batteriesQuantity)
 {
-    // interval = [previousPos+1 ; (-bankLen + 1) + x]
+    // interval = [previousBiggerPosition + 1; batteriesBank.len - batteriesQuantity]
     std::string totalJoltageOfBankString = "";
     std::int64_t totalJoltageOfBank = 0;
     int previousPos = -1;
-    int lenInterval = batteriesBank.size() - batteriesQuantity + 1;
 
-
-    //for (int x = 0; x < batteriesBank.size(); x++) // on parcours la banque
-    while (batteriesQuantity >= 0)
+    // go through the bank
+    for (int i = batteriesQuantity; i > 0; i--)
     {
         int biggerInInterval = -1;
+        int biggerPos = 0;
+        int lenInterval = batteriesBank.size() - batteriesQuantity;
 
-        //At the end of the bank, the interval decrease to avoid "out of range"
-        if (batteriesQuantity < lenInterval)
+        for (int y = previousPos + 1; y <= lenInterval; y++) // go through the interval where we can find the bigger digit for the final result digit position 
         {
-            lenInterval--;
-        }
-
-        for (int y = previousPos + 1; y <= previousPos + 1 + lenInterval; y++) // on parcourt le petit interval où peut se trouver le chiffre le plus grand qui nous interesse
-        {
-            //trouver le plus gros
-            std::cout << "element actuel : " << batteriesBank[y] << "\n";
+            //find the bigger
             if (batteriesBank[y] > biggerInInterval)
             {
                 biggerInInterval = batteriesBank[y];
+                biggerPos = y;
             }
-            
         }
 
-        std::cout << "plus gros dans l'interval [ " << previousPos + 1 << " - " << (previousPos + 1 + lenInterval) << " ] => " << biggerInInterval << "\n";
+        previousPos = biggerPos;
 
-        //ajouter le plus gros à la chaine de character (concaténation)
+        //add the bigger to the final result
         std::string biggerInIntervalString = std::to_string(biggerInInterval);
         totalJoltageOfBankString += biggerInIntervalString;
 
-        //calcul position biggerInInterval dans bank
-        int qttOccurrenceValueBiggerInTotalJoltageOfBankString = std::count(totalJoltageOfBankString.begin(), totalJoltageOfBankString.end(), biggerInIntervalString.at(0));
-        int count = 0;
-        if (qttOccurrenceValueBiggerInTotalJoltageOfBankString > 1)
-        {
-            for (int p = 0; p <= totalJoltageOfBankString.size(); ++p) 
-            {
-                std::string eTemp = std::string(1, totalJoltageOfBankString[p]);
-                //std::cout << "element actuel : " << eTemp << "\n";
-                //std::cout << "biggerInIntervalString actuel : " << biggerInIntervalString << "\n";
-                if (eTemp == biggerInIntervalString) {
-                    count++;
-                    if (count == qttOccurrenceValueBiggerInTotalJoltageOfBankString) {
-                        previousPos = p;
-                    }
-                }
-            }
-        }
-        else
-        {
-            previousPos = GetPositionInVector(batteriesBank, biggerInInterval);
-        }
-        
         batteriesQuantity--;
     }
 
-    //convertir chiffre final
-    totalJoltageOfBank = std::stoll(totalJoltageOfBankString);
-    std::cout << "plus gros actuel: " << totalJoltageOfBank << "\n";
-
-    //return chiffre final
-    return totalJoltageOfBank;
+    //return the convert result
+    return std::stoll(totalJoltageOfBankString);
 }
 
 
@@ -193,16 +165,14 @@ int main()
 
     for (std::string bank : batteriesBanks)
     {
-        std::cout << "BANK ACTUELLE : " << bank << "\n";
         GetJoltageBank(bank, convertBatteriesBank);
-        std::int64_t biggerJoltage = GetHighterJoltagePart2(convertBatteriesBank, 12);
+        std::int64_t biggerJoltage = GetHighterJoltage(convertBatteriesBank, 12);
         finalResult2 += biggerJoltage;
 
         convertBatteriesBank.clear();
-        std::cout << " ------------------ " << "\n";
     }
 
-    std::cout << "Final result: " << finalResult << "\n";
+    std::cout << "Final result: " << finalResult2 << "\n";
     auto stop = high_resolution_clock::now();
 
     auto duration = duration_cast<microseconds>(stop - start);
