@@ -96,7 +96,7 @@ std::int64_t GetHighterJoltagePart2(std::vector<int>& batteriesBank, int batteri
         int biggerInInterval = -1;
 
         //At the end of the bank, the interval decrease to avoid "out of range"
-        if (batteriesQuantity <= lenInterval)
+        if (batteriesQuantity < lenInterval)
         {
             lenInterval--;
         }
