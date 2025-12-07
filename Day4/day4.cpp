@@ -199,7 +199,6 @@ int main()
         finalResult += accessibleRollQttInMap;
     } while (accessibleRollQttInMap > 0);
     
-
     std::cout << finalResult << "\n";
     auto stop = high_resolution_clock::now();
 
