@@ -36,6 +36,13 @@ class Map
             return this->map.at(indexInMap);
         }
 
+        void ChangeValueInMap(int indexInMap, int newValue)
+        {
+            this->map.at(indexInMap) = newValue;
+        }
+
+
+
         std::vector<int> GetMap() { return map; }
         int GetSizeX() { return sizeX; }
         int GetSizeY() { return sizeY; }
@@ -72,6 +79,8 @@ int ReadFile(std::string _fileName, std::vector<int>& _map, int& _sizeX, int& _s
     return 0;
 }
 
+//Part1
+/*
 int CountAccessibleRolls(Map& _map, int limit)
 {
     int accessibleRollsQtt = 0;
@@ -107,6 +116,62 @@ int CountAccessibleRolls(Map& _map, int limit)
     
     return accessibleRollsQtt;
 }
+*/
+
+void UpdateMap(Map& _map, std::vector<int>& allPosToChange)
+{
+    for (int pos : allPosToChange)
+    {
+        _map.ChangeValueInMap(pos, 0);
+    }
+}
+
+int CountAccessibleRolls(Map& _map, int limit, std::vector<int>& _posToChange)
+{
+    int accessibleRollsQtt = 0;
+    bool lastCount = false;
+
+    while (!lastCount)
+    {
+        lastCount = true; // As long as there are no accessible rolls to count, this counting round is considered to be the last one.
+
+        for (size_t i = 0; i < _map.GetMap().size(); i++)
+        {
+            int currentX = i % _map.GetSizeX();
+            int currentY = i / _map.GetSizeY();
+
+            if (_map.GetValueInMap(currentX, currentY) == 0)
+            {
+                continue;
+            }
+
+            int rollNeighborsQtt = 0;
+
+            // We check all neighbors of the current element
+            rollNeighborsQtt += _map.GetValueInMap(currentX - 1, currentY - 1);
+            rollNeighborsQtt += _map.GetValueInMap(currentX, currentY - 1);
+            rollNeighborsQtt += _map.GetValueInMap(currentX + 1, currentY - 1);
+            rollNeighborsQtt += _map.GetValueInMap(currentX - 1, currentY);
+            rollNeighborsQtt += _map.GetValueInMap(currentX + 1, currentY);
+            rollNeighborsQtt += _map.GetValueInMap(currentX - 1, currentY + 1);
+            rollNeighborsQtt += _map.GetValueInMap(currentX, currentY + 1);
+            rollNeighborsQtt += _map.GetValueInMap(currentX + 1, currentY + 1);
+
+            if (rollNeighborsQtt < limit)
+            {
+                accessibleRollsQtt++;
+                _posToChange.push_back(i);
+                lastCount = false;
+            }
+        }
+
+        // we update the map : remove all accessible rolls
+        UpdateMap(_map, _posToChange);
+        _posToChange.clear();
+    }
+    
+    return accessibleRollsQtt;
+}
 
 
 
@@ -118,12 +183,14 @@ int main()
     int sizeX = 0;
     int sizeY = 0;
     std::vector<int> elementOfMap;
+    std::vector<int> posToChangeInMap;
 
     std::string filePath; 
     std::cout << "Enter the input file: ";
     std::cin >> filePath;
 
     //PART 1 -------------------------------------------------
+    /*
     int limit = 4;
     auto start = high_resolution_clock::now();
     ReadFile(filePath, elementOfMap, sizeX, sizeY);
@@ -134,7 +201,17 @@ int main()
 
     auto duration = duration_cast<microseconds>(stop - start);
     std::cout << "EXECUTION TIME (s): " << duration.count() / 1000000.0 << std::endl;
+    */
 
     //PART 2 -------------------------------------------------
+    int limit = 4;
+    auto start = high_resolution_clock::now();
+    ReadFile(filePath, elementOfMap, sizeX, sizeY);
+    Map* map = new Map(elementOfMap, sizeX, sizeY);
 
+    std::cout << CountAccessibleRolls(*map, limit, posToChangeInMap) << "\n";
+    auto stop = high_resolution_clock::now();
+
+    auto duration = duration_cast<microseconds>(stop - start);
+    std::cout << "EXECUTION TIME (s): " << duration.count() / 1000000.0 << std::endl;
 }
