@@ -30,7 +30,7 @@ int ReadFile(std::string _fileName, std::vector<std::string>& outIdsRanges, std:
         file.close();
     } 
     else {
-        std::cout << "Impossible d'ouvrir le fichier." << std::endl;
+        std::cout << "Impossible to read file." << std::endl;
     }
 
     return 0;
