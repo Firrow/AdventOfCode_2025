@@ -41,7 +41,7 @@ class Map
             this->map.at(indexInMap) = newValue;
         }
 
-        std::vector<int> GetMap() { return map; }
+        const std::vector<int>& GetMap() { return map; }
         int GetSizeX() { return sizeX; }
         int GetSizeY() { return sizeY; }
 };
