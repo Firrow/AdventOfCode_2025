@@ -26,8 +26,10 @@ int ReadFile(std::string _fileName, std::vector<std::string>& outIdsRanges, std:
         while(getline(file, line)) {
             outIdsToProcess.push_back(line);
         }
+
         file.close();
-    } else {
+    } 
+    else {
         std::cout << "Impossible d'ouvrir le fichier." << std::endl;
     }
 
@@ -78,7 +80,6 @@ int CountIDInRange(std::vector<std::string>& _IdsRanges, std::vector<std::string
                 it++;
             }
         }
-        
     }
 
     return count;
@@ -96,36 +97,35 @@ std::vector<std::pair<std::int64_t, std::int64_t>> SimplifyIntervals(std::vector
         currentFrom = _IdsRanges[i].first;
         currentTo = _IdsRanges[i].second;
 
-        std::cout << "currentFrom : " << currentFrom << "\n";
-        std::cout << "currentTo : " << currentTo << "\n";
-
         if (currentFrom > previousTo + 1) // we create a new interval
         {
             newIdsRanges.push_back(std::make_pair(currentFrom, currentTo));
-            std::cout << "Je créer un nouvel interval" << "\n";
         }
         else // we modify or not the current interval
         {
             if (currentTo >= previousTo)
             {
                 newIdsRanges.back().second = currentTo;
-                std::cout << "Je mets à jour l'interval" << "\n";
             }
         }
 
         previousTo = currentTo;
-
-        std::cout << " ------------------------------------- " << "\n";
     }
     
     return newIdsRanges;
 }
 
 //Part2
-/*int CountAllValidIDs(std::vector<std::pair<std::int64_t, std::int64_t>>& _IdsRanges)
+std::int64_t CountAllValidIDs(std::vector<std::pair<std::int64_t, std::int64_t>>& _IdsRanges)
 {
+    std::int64_t count = 0;
+    for (size_t i = 0; i < _IdsRanges.size(); i++)
+    {
+        count += (_IdsRanges[i].second - _IdsRanges[i].first) + 1;
+    }
 
-}*/
+    return count;
+}
 
 
 
@@ -144,8 +144,8 @@ int main()
     //   ../Inputs/inputTest.txt
 
     //PART 1 -------------------------------------------------
-    /*
-    auto start = high_resolution_clock::now();
+    
+    /*auto start = high_resolution_clock::now();
     ReadFile(filePath, IdsRangesInFile, IdsToProcessInFile);
     int finalResult = CountIDInRange(IdsRangesInFile, IdsToProcessInFile);
 
@@ -153,8 +153,8 @@ int main()
     auto stop = high_resolution_clock::now();
 
     auto duration = duration_cast<microseconds>(stop - start);
-    std::cout << "EXECUTION TIME (s): " << duration.count() / 1000000.0 << std::endl;
-    */
+    std::cout << "EXECUTION TIME (s): " << duration.count() / 1000000.0 << std::endl;*/
+    
     //PART 2 -------------------------------------------------
     auto start = high_resolution_clock::now();
     ReadFile(filePath, IdsRangesInFile, IdsToProcessInFile);
@@ -162,15 +162,9 @@ int main()
     SortRangesByFirstElement(IdsRanges);
     newIdsRanges = SimplifyIntervals(IdsRanges);
 
-    for (auto i : newIdsRanges)
-    {
-        std::cout << i.first << " - " << i.second << "\n";
-    }
-    
+    std::int64_t finalResult = CountAllValidIDs(newIdsRanges);
 
-    //int finalResult = CountIDInRange(IdsRanges, IdsToProcess);
-
-    //std::cout << finalResult << "\n";
+    std::cout << finalResult << "\n";
     auto stop = high_resolution_clock::now();
 
     auto duration = duration_cast<microseconds>(stop - start);
