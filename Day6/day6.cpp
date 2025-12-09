@@ -36,6 +36,7 @@ void GetNumbersAndOperators(std::string& _line, std::vector<std::int64_t>& outNu
     size_t out;
     std::int64_t element;
 
+    // get all numbers
     while (!_line.empty())
     {
         try
@@ -48,6 +49,7 @@ void GetNumbersAndOperators(std::string& _line, std::vector<std::int64_t>& outNu
         { break; }
     }
 
+    // get all operators
     for(char c : _line) {
         switch(c) {
             case '*':
@@ -65,28 +67,33 @@ std::int64_t Calculate(std::vector<std::int64_t>& _numbers, std::vector<char>& _
     std::int64_t result = 0;
     int lengthLine = _operators.size();
 
+    // for each columns
     for (size_t i = 0; i < lengthLine; i++) // ligne
     {
         char currentOperator = _operators[i];
-        std::int64_t resultEachCalcul = _numbers[i];
+        std::int64_t blocCalcul = _numbers[i]; // we initialize the calcul with the first element
 
-        for (size_t j = 1; j < QttNumberInCalcul - 1; j ++) // colonne
+        // for each element of column
+        for (size_t j = 1; j < QttNumberInCalcul - 1; j ++)
         {
             int index = j * lengthLine + i;
+
+            // calcul the bloc's result
             switch (currentOperator)
             {
                 case '*':
-                    resultEachCalcul *= _numbers[index];
+                    blocCalcul *= _numbers[index];
                     break;
                 case '+':
-                    resultEachCalcul += _numbers[index];
+                    blocCalcul += _numbers[index];
                     break;
                 default:
                     break;
             }
         }
 
-        result += resultEachCalcul;
+        // calcul the final result
+        result += blocCalcul;
     }
     
     return result;
@@ -134,7 +141,7 @@ int ReadFile(std::string _fileName, std::string& outDatas, int& outSizeX)
     if(file.is_open()) {
         while(getline(file, line)) {
             outDatas += line;
-            outSizeX = line.length(); // avec retour à la ligne a prendre en compte dans la longueur de la ligne (+1 par rapport à ce qu'on voit)
+            outSizeX = line.length();
         }
         file.close();
     } else {
@@ -144,89 +151,66 @@ int ReadFile(std::string _fileName, std::string& outDatas, int& outSizeX)
     return 0;
 }
 
+void CalculateColumn(char& currentOperator, std::int64_t& previousResult, std::string& number)
+{
+    switch (currentOperator)
+    {
+        case '*':
+            previousResult *= std::stoll(number);
+            break;
+        case '+':
+            previousResult += std::stoll(number);
+            break;
+        default:
+            break;
+    }
+}
+
 std::int64_t Calculate(Map& _map, int _QttNumberInCalcul)
 {
     std::int64_t result = 0;
-    std::string number = ""; //anciennement CalculCol
-    std::int64_t resultatColumn;
+    std::string number = "";
+    std::int64_t blocCalcul = 0;
     char currentOperator = '\0';
-    int lenBlock = 1;
 
 
+    // for each column
     for (size_t x = 0; x < _map.GetSizeX(); x++)
     {
-        // Get Calcul to do
+        // for each char of column
         for (size_t y = 0; y < _QttNumberInCalcul; y++)
         {
             char element = _map.GetValueInMap(x, y);
-            std::cout << " x : " << x << "\n";
-            std::cout << " y : " << y << "\n";
-            std::cout << "element map : " << element << "\n";
 
-            if (y == _QttNumberInCalcul - 1) // si on est sur la dernière ligne
+            // if we are on the last line
+            if (y == _QttNumberInCalcul - 1)
             {
-                // si fin du bloc
-                if ((_map.GetValueInMap(x + 2, y) == '*' || _map.GetValueInMap(x + 2, y) == '+') || x == _map.GetSizeX() - 1) // et que l'element à droite sur la ligne des operator est un operateur => bloc fini
+                // if we are at the begining of the current bloc
+                if (element == '*' || element == '+')
                 {
-                    // CALCUL COLONNE --------------------------------------------------------------
-                    switch (currentOperator) // fin ligne
-                    {
-                        case '*':
-                            resultatColumn *= std::stoi(number);
-                            break;
-                        case '+':
-                            resultatColumn += std::stoi(number);
-                            break;
-                        default:
-                            break;
-                    }
+                    currentOperator = element;
+                    blocCalcul = (currentOperator == '*') ? 1 : 0;
+                }
+                // if we are at the end of the current bloc (current calcul) or at the end of the map
+                if ((_map.GetValueInMap(x + 2, y) == '*' || _map.GetValueInMap(x + 2, y) == '+') || x == _map.GetSizeX() - 1)
+                {
+                    CalculateColumn(currentOperator, blocCalcul, number);
+                    result += blocCalcul;
 
-                    std::cout << "resultatColumn temps : " << resultatColumn << "\n";
-                    // -------------------------------------------------------------------------------
-
-                    result += resultatColumn;
-                    std::cout << "result temp : " << result << "\n";
-                    number = "";
-                    resultatColumn = 0;
+                    // reset bloc elements
+                    blocCalcul = 0;
                     currentOperator = '\0';
                     break;
                 }
-                if (element == '*' || element == '+') // si début du bloc
-                {
-                    currentOperator = element;
-                    resultatColumn = (currentOperator == '*') ? 1 : 0;
-                    //calculCol += currentOperator;
-                    //std::cout << "calculCol : " << calculCol << "\n";
-                }
-                //else if (element == ' ')
-                {
-                    //calculCol += currentOperator;
-                    // CALCUL COLONNE --------------------------------------------------------------
-                    switch (currentOperator) // fin ligne
-                    {
-                        case '*':
-                            resultatColumn *= std::stoll(number);
-                            break;
-                        case '+':
-                            resultatColumn += std::stoll(number);
-                            break;
-                        default:
-                            break;
-                    }
 
-                    std::cout << "resultatColumn temps : " << resultatColumn << "\n";
-                    // -------------------------------------------------------------------------------
-                }
-
+                // at the end of the column, we have our number so we update the bloc calcul
+                CalculateColumn(currentOperator, blocCalcul, number);
                 number = "";
             }
             else
             {
                 number += element;
-                std::cout << "number : " << number << "\n";
             }
-
-            std::cout << " ------------------------- " << "\n";
         }
     }
 
