@@ -125,7 +125,7 @@ int CountAccessibleRolls(Map& _map, int limit)
     for (size_t i = 0; i < _map.GetMap().size(); i++)
     {
         currentX = i % _map.GetSizeX();
-        currentY = i / _map.GetSizeY();
+        currentY = i / _map.GetSizeX();
 
         if (_map.GetValueInMap(currentX, currentY) == 0)
         {
