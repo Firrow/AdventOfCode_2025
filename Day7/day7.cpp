@@ -96,7 +96,7 @@ int CountSplitTachyon(Map& _map)
             {
                 int limitResearch = 0;
 
-                for (size_t y = currentY - 1; y > 0; y--)
+                for (size_t y = currentY - 1; y > 0; y--) // récupérer le y du précédent spliter (si y = 0, absence)
                 {
                     if (_map.GetValueInMap(currentX, y) == '^')
                     {
@@ -106,12 +106,12 @@ int CountSplitTachyon(Map& _map)
                 }
                 std::cout << " limitResearch : " << limitResearch << "\n";
                 
-                for (size_t yInLimit = currentY - 1; yInLimit > limitResearch; yInLimit--)
+                for (size_t yInLimit = currentY - 1; yInLimit > limitResearch; yInLimit--) // on chercher dans cette limite s'il y a un spliter à gauche ou a droite du spliter actuel
                 {
                     if (_map.GetValueInMap(currentX - 1, yInLimit) == '^' || _map.GetValueInMap(currentX + 1, yInLimit) == '^') // s'il y a un spliter entre le spliter actuel et le précédent
                     {
                         std::cout << " J'AI UN SPLITER ACTIF DANS MA LIMITE a y : " << yInLimit << "\n";
-                        activeSpliters.push_back(std::make_pair(currentX, currentY));
+                        activeSpliters.push_back(std::make_pair(currentX, currentY)); // on ajoute le spliter actuel car va recevoir faisceau
                         break;
                     }
                 }
