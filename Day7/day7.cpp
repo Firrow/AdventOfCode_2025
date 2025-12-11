@@ -45,6 +45,8 @@ class Map
         int GetSizeY() { return sizeY; }
 };
 
+
+
 std::int64_t ReadFile(std::string _fileName, std::string& outDatas, int& outSizeX, int& outSizeY)
 {
     std::ifstream file(_fileName);
@@ -64,8 +66,8 @@ std::int64_t ReadFile(std::string _fileName, std::string& outDatas, int& outSize
     return 0;
 }
 
-
-std::int64_t CountSplitTachyon(Map& _map, std::vector<std::pair<int, int>>& activeSpliters)
+// PART1 ----------------------------------------------------------------------------------------------------------------------------------------
+std::int64_t CountSplitTachyon(Map& _map, std::vector<std::pair<int, int>>& activesplitters)
 {
     int currentX = 0;
     int currentY = 0;
@@ -77,19 +79,19 @@ std::int64_t CountSplitTachyon(Map& _map, std::vector<std::pair<int, int>>& acti
         currentY = index / _map.GetSizeX();
         char currentindex = _map.GetValueInMap(currentX, currentY);
         
-        // if current element is a spliter
+        // if current element is a splitter
         if (_map.GetValueInMap(currentX, currentY) == '^')
         {
-            // if this is the first spliter
+            // if this is the first splitter
             if (_map.GetValueInMap(currentX, currentY - 2) == 'S')
             {
-                activeSpliters.push_back(std::make_pair(currentX, currentY));
+                activesplitters.push_back(std::make_pair(currentX, currentY));
             }
             else
             {
                 int limitResearch = 0;
 
-                // search the previous spliter above the current spliter (if it doesn't exist -> y = 0)
+                // search the previous splitter above the current splitter (if it doesn't exist -> y = 0)
                 for (size_t y = currentY - 1; y > 0; y--)
                 {
                     if (_map.GetValueInMap(currentX, y) == '^')
@@ -99,128 +101,112 @@ std::int64_t CountSplitTachyon(Map& _map, std::vector<std::pair<int, int>>& acti
                     }
                 }
                 
-                // for each element in column before and after the current spliter
+                // for each element in column before and after the current splitter
                 for (size_t yInLimit = currentY - 1; yInLimit > limitResearch; yInLimit--)
                 {
-                    // check if there is another active spliter
+                    // check if there is another active splitter
                     if (_map.GetValueInMap(currentX - 1, yInLimit) == '^' || _map.GetValueInMap(currentX + 1, yInLimit) == '^')
                     {
-                        // add the current spliter to the list of active spliter 
-                        activeSpliters.push_back(std::make_pair(currentX, currentY));
+                        // add the current splitter to the list of active splitter 
+                        activesplitters.push_back(std::make_pair(currentX, currentY));
                         break;
                     }
                 }
-                
             }
         }
-        
     }
     
-    return activeSpliters.size();
+    return activesplitters.size();
 }
 
-std::int64_t CalculateElement(Map& _map, std::vector<std::int64_t>& previousRow, int elementX, int elementY, char posRelativeToSpliter);
+// PART2 ----------------------------------------------------------------------------------------------------------------------------------------
+std::int64_t CalculateElement(Map& _map, std::vector<std::int64_t>& previousRow, int elementX, int elementY, char posRelativeTosplitter);
 
-std::int64_t CountTimeline(Map& _map, std::vector<std::pair<int, int>>& activeSpliters)
+std::int64_t CountTimeline(Map& _map, std::vector<std::pair<int, int>>& activesplitters)
 {
     int currentX = 0;
     int currentY = 0;
     std::int64_t resultatLine = 0;
-    std::vector<std::int64_t> previousRow = {};
+    std::vector<std::int64_t> previousRow;
     for (size_t i = 0; i < _map.GetSizeX(); i++)
     {
         previousRow.push_back(0);
     }
-    std::vector<std::int64_t> currentLine = {};
+    std::vector<std::int64_t> currentRow = {};
 
     for (size_t index = 0; index < _map.GetMap().size(); index++)
     {
         currentX = index % _map.GetSizeX();
         currentY = index / _map.GetSizeX();
-        std::int64_t leftElement = 0;
-        std::int64_t rightElement = 0;
-        std::int64_t element = 0;
         char currentindex = _map.GetValueInMap(currentX, currentY);
+        std::int64_t element = 0;
 
-        // update line
+        // update rows
         if (currentX == 0 && currentY > 0)
         {
-            for (size_t i = 0; i < currentLine.size(); i++)
-            {
-                std::cout << currentLine[i] << " ";
-            }
-            std::cout << "\n";
-            
-            previousRow = currentLine;
-            currentLine.clear();
+            previousRow = currentRow;
+            currentRow.clear();
         }
 
-        if (_map.GetValueInMap(currentX - 1, currentY) == '^') //si l'element a gauche est un spliter (actif ou non)
-        {
-            element = CalculateElement(_map, previousRow, currentX, currentY, 'G');
-        }
-        else if (_map.GetValueInMap(currentX + 1, currentY) == '^') //si l'element a droite est un spliter (actif ou non)
-        {
-            element = CalculateElement(_map, previousRow, currentX, currentY, 'D');
-            
-        } 
-        else if (_map.GetValueInMap(currentX, currentY) == '^')
-        {
-            element = 0;
-        }
-        else if (_map.GetValueInMap(currentX, currentY - 1 ) == 'S')
+        if (_map.GetValueInMap(currentX, currentY - 1 ) == 'S') // if current element is the ray source
         {
             element = 1;
         } 
-        else {
+        else if (_map.GetValueInMap(currentX, currentY) == '^') // if current element is a splitter
+        {
+            element = 0;
+        }
+        else if (_map.GetValueInMap(currentX - 1, currentY) == '^') // if current element has a splitter on its left
+        {
+            element = CalculateElement(_map, previousRow, currentX, currentY, 'G');
+        }
+        else if (_map.GetValueInMap(currentX + 1, currentY) == '^') // if current element has a splitter on its right
+        {
+            element = CalculateElement(_map, previousRow, currentX, currentY, 'D');
+        } 
+        else 
+        {
             element = previousRow[currentX];
         }
 
-        currentLine.push_back(element);
+        // add calculate element on the current row
+        currentRow.push_back(element);
     }
 
-    // on calcul le resultat de la derniere ligne
-    for (size_t i = 0; i < currentLine.size(); i++)
+    // add up all the items in the last row
+    for (size_t i = 0; i < currentRow.size(); i++)
     {
-        resultatLine += currentLine[i];
+        resultatLine += currentRow[i];
     }
     
-    return resultatLine; // on return le resultat de la dernière ligne
+    return resultatLine;
 }
 
-std::int64_t CalculateElement(Map& _map, std::vector<std::int64_t>& previousRow, int elementX, int elementY, char posRelativeToSpliter)
+std::int64_t CalculateElement(Map& _map, std::vector<std::int64_t>& previousRow, int elementX, int elementY, char posRelativeTosplitter)
 {
     std::int64_t calcul = 0;
 
-    switch (posRelativeToSpliter)
+    switch (posRelativeTosplitter)
     {
         case 'G':
         {
-            if (_map.GetValueInMap(elementX + 1, elementY) == '^')
+            if (_map.GetValueInMap(elementX + 1, elementY) == '^') // if current element is between 2 splitters, add the 3 elements above it
             {
-                // prendre les 3 elements dans previousRow
                 calcul = previousRow[elementX - 1] + previousRow[elementX] + previousRow[elementX + 1];
             }
-            else
+            else // add the element at the top left and the one directly above it
             {
-                // prendre l'element en haut et a droite dans previousRow
                 calcul = previousRow[elementX] + previousRow[elementX - 1];
             }
             break;
         }
         case 'D':
         {
-            // impossible car ne peux pas avoir un spliter à gauche si on en a deje un a droite
-            if (_map.GetValueInMap(elementX - 1, elementY) == '^')
-            {
-                // prendre les 3 elements dans previousRow
-                calcul = previousRow[elementX - 1] + previousRow[elementX] + previousRow[elementX + 1];
-            }
-            else
-            {
-                // prendre l'element en haut et a gauche dans previousRow
-                calcul = previousRow[elementX] + previousRow[elementX + 1];
-            }
+            // If there is a splitter on the right, we do not check if there is one on the left because if there is, 
+            //      we have already processed it (see else if line 159 and 195).
+
+            // add the element at the top right and the one directly above it 
+            calcul = previousRow[elementX] + previousRow[elementX + 1];
             break;
         }
         default:
@@ -231,12 +217,13 @@ std::int64_t CalculateElement(Map& _map, std::vector<std::int64_t>& previousRow,
 }
 
 
+
 int main()
 {
     std::string datas;
     int sizeX = 0;
     int sizeY = 0;
-    std::vector<std::pair<int, int>> activeSpliters;
+    std::vector<std::pair<int, int>> activesplitters;
     std::int64_t finalResultPart1 = 0;
     std::int64_t finalResultPart2 = 0;
 
@@ -253,7 +240,7 @@ int main()
     ReadFile(filePath, datas, sizeX, sizeY);
     Map* map = new Map(datas, sizeX, sizeY);
 
-    /*finalResultPart1 = CountSplitTachyon(*map, activeSpliters);
+    /*finalResultPart1 = CountSplitTachyon(*map, activesplitters);
 
     std::cout << "finalResult - Part1 : " << finalResultPart1 << "\n";
     auto stop = high_resolution_clock::now();
@@ -263,7 +250,7 @@ int main()
     
     
     //PART 2 -------------------------------------------------
-    finalResultPart2 = CountTimeline(*map, activeSpliters);
+    finalResultPart2 = CountTimeline(*map, activesplitters);
 
     std::cout << "finalResult : " << finalResultPart2 << "\n";
     auto stop = high_resolution_clock::now();
