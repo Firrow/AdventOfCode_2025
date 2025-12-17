@@ -60,8 +60,16 @@ void GetDistancePoints(std::vector<std::tuple<int, int, int>>& _allPoints, std::
             outAllPointsDistance.push_back(std::make_tuple(distance, i, j));
         }
     }
-    
-    
+}
+
+void SortByDistances(std::vector<std::tuple<float, int, int>>& outAllPointsDistance)
+{
+    std::sort(outAllPointsDistance.begin(), outAllPointsDistance.end());
+
+    for (int i = 0; i < outAllPointsDistance.size(); i++) 
+        std::cout << "Distance : " << std::get<0>(outAllPointsDistance[i]) << " - " 
+                  << "index1 : " << std::get<1>(outAllPointsDistance[i]) << " - "
+                  << "index2 : " << std::get<2>(outAllPointsDistance[i]) << "\n";
 }
 
 
@@ -81,6 +89,10 @@ int main()
     //PART 1 -------------------------------------------------
     auto start = high_resolution_clock::now();
     ReadFile(filePath, allPoints);
+
+    GetDistancePoints(allPoints, allPointsDistance);
+
+    SortByDistances(allPointsDistance);
 
     /*for (const auto& t : allPoints) {
         std::cout << std::get<0>(t) << " - "
