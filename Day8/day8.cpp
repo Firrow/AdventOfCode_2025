@@ -61,6 +61,21 @@ class Clustering
             return clustersSize;
         }
 
+        bool IsOnlyOneCluster()
+        {
+            int firstElement = GetPointParent(0);
+
+            for (size_t i = 1; i < parentList.size(); i++)
+            {
+                if (GetPointParent(parentList[i]) != firstElement)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
     private :
         std::vector<int> parentList;
 };
@@ -95,7 +110,7 @@ int ReadFile(std::string fileName, std::vector<std::tuple<int, int, int>>& outPo
         }
         file.close();
     } else {
-        std::cout << "Impossible d'ouvrir le fichier." << std::endl;
+        std::cout << "Impossible to read file." << std::endl;
     }
 
     return 0;
@@ -142,7 +157,7 @@ int main()
     //   ../Inputs/inputTest.txt
 
     //PART 1 -------------------------------------------------
-    auto start = high_resolution_clock::now();
+    /*auto start = high_resolution_clock::now();
     ReadFile(filePath, allPoints);
 
     GetDistancePoints(allPoints, allPointsDistance);
@@ -169,8 +184,30 @@ int main()
     std::cout << "finalResult : " << finalResult << "\n";
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stop - start);
-    std::cout << "EXECUTION TIME (s): " << duration.count() / 1000000.0 << std::endl;
+    std::cout << "EXECUTION TIME (s): " << duration.count() / 1000000.0 << std::endl;*/
 
     //PART 2 -------------------------------------------------
-    
+    auto start = high_resolution_clock::now();
+    ReadFile(filePath, allPoints);
+
+    GetDistancePoints(allPoints, allPointsDistance);
+
+    SortPointsByDistances(allPointsDistance);
+
+    Clustering clustering{allPoints.size()};
+
+    int i = 0;
+    while (!clustering.IsOnlyOneCluster())
+    {
+        clustering.MergeCluster(std::get<1>(allPointsDistance[i]), std::get<2>(allPointsDistance[i]));
+        i++;
+    }
+
+    // Get the X value of the two lasts points of the allPointDistance
+    int finalResult = std::get<0>(allPoints[std::get<1>(allPointsDistance[i - 1])]) * std::get<0>(allPoints[std::get<2>(allPointsDistance[i - 1])]);
+
+    std::cout << "finalResult : " << finalResult << "\n";
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<microseconds>(stop - start);
+    std::cout << "EXECUTION TIME (s): " << duration.count() / 1000000.0 << std::endl;
 }
