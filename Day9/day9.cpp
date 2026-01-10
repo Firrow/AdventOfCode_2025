@@ -45,6 +45,22 @@ class Rectangle
         {
             return std::make_pair(p2.x, p2.y);
         }
+
+        bool FindRectangle(Rectangle& rectangle, std::vector<Rectangle>& rectangles)
+        {
+            for (Rectangle rec : rectangles)
+            {
+                if (rectangle.GetP1().first == rec.GetP1().first &&
+                    rectangle.GetP1().second == rec.GetP1().second &&
+                    rectangle.GetP2().first == rec.GetP2().first &&
+                    rectangle.GetP2().second == rec.GetP2().second )
+                {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
 };
 
 
@@ -150,25 +166,29 @@ void GetAllRectangles(std::vector<std::pair<std::int64_t, std::int64_t>>& allRed
                 yMin = allRedTiles[j].second;
                 yMax = allRedTiles[i].second;
             }
-            
-            //std::cout << xMin << ", " << yMin << " - " << xMax << ", " << yMax << "\n";
 
             Rectangle rec{xMin, xMax, yMin, yMax};
-            out_allRectangles.push_back(rec);
+            if(!rec.FindRectangle(rec, out_allRectangles))
+            {
+                out_allRectangles.push_back(rec);
+            }
         }
     }
 }
 
-// PROBLEME HERE
 bool CheckCollision(Rectangle& rectangle, std::vector<std::pair<std::int64_t, std::int64_t>>& allRedTiles)
 {
+    std::cout << "rectangle p1 :" << rectangle.GetP1().first << ", " << rectangle.GetP1().second << "\n";
+    std::cout << "rectangle p2 :" << rectangle.GetP2().first << ", " << rectangle.GetP2().second << "\n";
+    std::cout << "\n";
+
     for (size_t i = 0; i < allRedTiles.size(); i++)
     {
         std::pair<std::int64_t, std::int64_t> shapeLinePoint1;
         std::pair<std::int64_t, std::int64_t> shapeLinePoint2;
 
         // the last point make a line with the first one
-        if (allRedTiles[i] == allRedTiles.back()) // PROBLEM : ne passe jamais ici
+        if (allRedTiles[i] == allRedTiles.back())
         {
             shapeLinePoint1 = allRedTiles[i];
             shapeLinePoint2 = allRedTiles[0];
@@ -179,25 +199,81 @@ bool CheckCollision(Rectangle& rectangle, std::vector<std::pair<std::int64_t, st
             shapeLinePoint2 = allRedTiles[i + 1];
         }
 
-        std::cout << "current line point1 :" << shapeLinePoint1.first << ", " << shapeLinePoint1.second << "\n";
-        std::cout << "current line point2 :" << shapeLinePoint2.first << ", " << shapeLinePoint2.second << "\n";
+        //std::cout << "current line p1 :" << shapeLinePoint1.first << ", " << shapeLinePoint1.second << "\n";
+        //std::cout << "current line p2 :" << shapeLinePoint2.first << ", " << shapeLinePoint2.second << "\n";
+        //std::cout << "\n";
 
         if (shapeLinePoint1.first == shapeLinePoint2.first) // vertical
         {
-            if (((shapeLinePoint1.first > rectangle.GetP1().first) && (shapeLinePoint1.first < rectangle.GetP2().first)) && (shapeLinePoint1.second < rectangle.GetP2().second) || (shapeLinePoint2.second > rectangle.GetP1().second))
+            //std::cout << " - VERTICAL - " << "\n";
+            /*bool part1 = (shapeLinePoint1.first > rectangle.GetP1().first);
+            bool part2 = (shapeLinePoint1.first < rectangle.GetP2().first);
+            bool part1et2 = ((shapeLinePoint1.first > rectangle.GetP1().first) && (shapeLinePoint1.first < rectangle.GetP2().first));
+            bool part3 = (shapeLinePoint1.second < rectangle.GetP2().second);
+            bool part4 = (shapeLinePoint2.second > rectangle.GetP1().second);
+            bool part3et4 = ((shapeLinePoint1.second < rectangle.GetP2().second) && (shapeLinePoint2.second > rectangle.GetP1().second));
+            bool tout = ((shapeLinePoint1.first > rectangle.GetP1().first) && (shapeLinePoint1.first < rectangle.GetP2().first)) && ((shapeLinePoint1.second < rectangle.GetP2().second) && (shapeLinePoint2.second > rectangle.GetP1().second));
+
+            std::cout << " line_X > RecP1_X : " << part1 << "\n";
+            std::cout << " line_X < RecP2_X : " << part2 << "\n";
+            std::cout << " line_X > RecP1_X && line_X < RecP2_X : " << part1et2 << "\n";
+            std::cout << " lineP1_Y < RecP2_Y : " << part3 << "\n";
+            std::cout << " lineP2_Y > RecP1_Y : " << part4 << "\n";
+            std::cout << " lineP1_Y < RecP2_Y && lineP2_Y > RecP1_Y : " << part3et4 << "\n";
+            std::cout << " collision : " << tout << "\n";
+            std::cout << " -------------------------- \n";
+
+            if (((shapeLinePoint1.first > rectangle.GetP1().first) && (shapeLinePoint1.first < rectangle.GetP2().first)) && ((shapeLinePoint1.second < rectangle.GetP2().second) && (shapeLinePoint2.second > rectangle.GetP1().second)))
+            {
+                return true;
+            }*/
+
+            bool conditionX = (shapeLinePoint1.first > rectangle.GetP1().first) && (shapeLinePoint1.first < rectangle.GetP2().first);
+            bool conditionY1 = (rectangle.GetP1().second <= shapeLinePoint1.second && rectangle.GetP2().second >= shapeLinePoint1.second);
+            bool conditionY2 = (rectangle.GetP1().second <= shapeLinePoint2.second && rectangle.GetP2().second >= shapeLinePoint2.second);
+
+            if (conditionX && (conditionY1 || conditionY2))
             {
                 return true;
             }
         }
-        else if (shapeLinePoint1.second == shapeLinePoint2.second) // horizontal PROBLEM HERE : ENTRE TOUJOURS ICI
+        else if (shapeLinePoint1.second == shapeLinePoint2.second) // horizontal
         {
-            if (((shapeLinePoint1.second > rectangle.GetP1().second) && (shapeLinePoint1.second < rectangle.GetP2().second)) && (shapeLinePoint1.first < rectangle.GetP2().first) || (shapeLinePoint2.first > rectangle.GetP1().first))
+            //std::cout << " - HORIZONTAL - " << "\n";
+            /*bool part1 = (shapeLinePoint1.second > rectangle.GetP1().second);
+            bool part2 = (shapeLinePoint1.second < rectangle.GetP2().second);
+            bool part1et2 = ((shapeLinePoint1.second > rectangle.GetP1().second) && (shapeLinePoint1.second < rectangle.GetP2().second));
+            bool part3 = (shapeLinePoint1.first < rectangle.GetP2().first);
+            bool part4 = (shapeLinePoint2.first > rectangle.GetP1().first);
+            bool part3et4 = ((shapeLinePoint1.first < rectangle.GetP2().first) && (shapeLinePoint2.first > rectangle.GetP1().first));
+            bool tout = ((shapeLinePoint1.second > rectangle.GetP1().second) && (shapeLinePoint1.second < rectangle.GetP2().second)) && ((shapeLinePoint1.first < rectangle.GetP2().first) && (shapeLinePoint2.first > rectangle.GetP1().first));
+
+            std::cout << " line_Y > RecP1_Y : " << part1 << "\n";
+            std::cout << " line_Y < RecP2_Y : " << part2 << "\n";
+            std::cout << " line_Y > RecP1_Y && line_Y < RecP2_Y : " << part1et2 << "\n";
+            std::cout << " lineP1_X < RecP2_X : " << part3 << "\n";
+            std::cout << " lineP2_X > RecP1_X : " << part4 << "\n";
+            std::cout << " lineP1_X < RecP2_X && lineP2_X > RecP1_X : " << part3et4 << "\n";
+            std::cout << " collision : " << tout << "\n";
+            std::cout << " -------------------------- \n";
+
+            if (((shapeLinePoint1.second > rectangle.GetP1().second) && (shapeLinePoint1.second < rectangle.GetP2().second)) && ((shapeLinePoint1.first < rectangle.GetP2().first) && (shapeLinePoint2.first > rectangle.GetP1().first)))
+            {
+                return true;
+            }*/
+
+            bool conditionY = (shapeLinePoint1.second > rectangle.GetP1().second) && (shapeLinePoint1.second < rectangle.GetP2().second);
+            bool conditionX1 = (rectangle.GetP1().first <= shapeLinePoint1.first && rectangle.GetP2().first >= shapeLinePoint1.first);
+            bool conditionX2 = (rectangle.GetP1().first <= shapeLinePoint2.first && rectangle.GetP2().first >= shapeLinePoint2.first);
+
+            if (conditionY && (conditionX1 || conditionX2))
             {
                 return true;
             }
         }
     }
-    
+    //std::cout << " PAS DE COLLISION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
+    //std::cout << " -------------------------- \n";
     return false;
 }
 
@@ -242,15 +318,19 @@ int main()
     // convertir en diagonale
     GetAllRectangles(allRedTiles, AllRectangles);
 
-    // check si collision
-        // si non : calculer aire + enregistrer l'aire
-    // return la plus grande
     for(Rectangle& rectangle : AllRectangles)
     {
         if (!CheckCollision(rectangle, allRedTiles))
         {
+            //std::cout << "rectangle point1 :" << rectangle.GetP1().first << ", " << rectangle.GetP1().second << "\n";
+            //std::cout << "rectangle point2 :" << rectangle.GetP2().first << ", " << rectangle.GetP2().second << "\n";
+            std::cout << "\n";
+
             std::int64_t rectangleArea = CalculAreaRectangle(rectangle);
+            //std::cout << "AIRE : " << rectangleArea << "\n";
             finalResult = rectangleArea > finalResult ? rectangleArea : finalResult;
+
+            std::cout << " -------------------------- \n";
         }
     }
 
