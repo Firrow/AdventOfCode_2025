@@ -129,8 +129,6 @@ void GetAllRectangles(std::vector<std::pair<std::int64_t, std::int64_t>>& allRed
 {
     for (size_t i = 0; i < allRedTiles.size(); i++) // point1
     {
-        //std::cout << "current point :" << allRedTiles[i].first << ", " << allRedTiles[i].second << " --------------------------------------------------------\n";
-
         for (size_t j = 0; j < allRedTiles.size(); j++) // point2
         {
             std::int64_t xMin;
@@ -199,9 +197,9 @@ bool CheckCollision(Rectangle& rectangle, std::vector<std::pair<std::int64_t, st
             shapeLinePoint2 = allRedTiles[i + 1];
         }
 
-        //std::cout << "current line p1 :" << shapeLinePoint1.first << ", " << shapeLinePoint1.second << "\n";
-        //std::cout << "current line p2 :" << shapeLinePoint2.first << ", " << shapeLinePoint2.second << "\n";
-        //std::cout << "\n";
+        std::cout << "current line p1 :" << shapeLinePoint1.first << ", " << shapeLinePoint1.second << "\n";
+        std::cout << "current line p2 :" << shapeLinePoint2.first << ", " << shapeLinePoint2.second << "\n";
+        std::cout << "\n";
 
         if (shapeLinePoint1.first == shapeLinePoint2.first) // vertical
         {
@@ -231,6 +229,15 @@ bool CheckCollision(Rectangle& rectangle, std::vector<std::pair<std::int64_t, st
             bool conditionX = (shapeLinePoint1.first > rectangle.GetP1().first) && (shapeLinePoint1.first < rectangle.GetP2().first);
             bool conditionY1 = (rectangle.GetP1().second <= shapeLinePoint1.second && rectangle.GetP2().second >= shapeLinePoint1.second);
             bool conditionY2 = (rectangle.GetP1().second <= shapeLinePoint2.second && rectangle.GetP2().second >= shapeLinePoint2.second);
+
+            std::cout << " conditionX : " << conditionX << "\n";
+            std::cout << " conditionY1 : " << conditionY1 << "\n";
+            std::cout << " conditionY2 : " << conditionY2 << "\n";
+            bool conditionY1et2 = conditionY1 || conditionY2;
+            bool total = conditionX && (conditionY1 || conditionY2);
+            std::cout << " conditionY1 || conditionY2 : " << conditionY1et2 << "\n";
+            std::cout << " total : " << total << "\n";
+            std::cout << " -------------------------- \n";
 
             if (conditionX && (conditionY1 || conditionY2))
             {
@@ -265,6 +272,15 @@ bool CheckCollision(Rectangle& rectangle, std::vector<std::pair<std::int64_t, st
             bool conditionY = (shapeLinePoint1.second > rectangle.GetP1().second) && (shapeLinePoint1.second < rectangle.GetP2().second);
             bool conditionX1 = (rectangle.GetP1().first <= shapeLinePoint1.first && rectangle.GetP2().first >= shapeLinePoint1.first);
             bool conditionX2 = (rectangle.GetP1().first <= shapeLinePoint2.first && rectangle.GetP2().first >= shapeLinePoint2.first);
+
+            std::cout << " conditionX : " << conditionY << "\n";
+            std::cout << " conditionY1 : " << conditionX1 << "\n";
+            std::cout << " conditionY2 : " << conditionX2 << "\n";
+            bool conditionY1et2 = conditionX1 || conditionX2;
+            bool total = conditionY && (conditionX1 || conditionX2);
+            std::cout << " conditionY1 || conditionY2 : " << conditionY1et2 << "\n";
+            std::cout << " total : " << total << "\n";
+            std::cout << " -------------------------- \n";
 
             if (conditionY && (conditionX1 || conditionX2))
             {
