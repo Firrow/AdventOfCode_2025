@@ -8,6 +8,7 @@
 #include <chrono>
 #include <cmath>
 #include <algorithm>
+#include <assert.h>
 
 using namespace std::chrono;
 
@@ -103,20 +104,13 @@ std::int64_t CalculAreaLargestRectangle(std::vector<std::pair<std::int64_t, std:
     {
         for (size_t j = 0; j < allRedTiles.size(); j++) // point2
         {
-            //std::cout << "Xa = " << allRedTiles[i].first << " - Xb = " << allRedTiles[j].first << "\n";
-            //std::cout << "Ya = " << allRedTiles[i].second << " - Yb = " << allRedTiles[j].second << "\n";
-            //std::cout << " calcul : " << std::abs(allRedTiles[i].first - allRedTiles[j].first) << " + 1 * " << std::abs(allRedTiles[i].second - allRedTiles[j].second) << " + 1 \n";
             std::int64_t resultTemp = (std::abs(allRedTiles[i].first - allRedTiles[j].first) + 1) *
                                       (std::abs(allRedTiles[i].second - allRedTiles[j].second) + 1);
-            
-            //std::cout << " resultat =  " << resultTemp <<  "\n";
 
             if (resultTemp >= result)
             {
                 result = resultTemp;
             }
-
-            //std::cout << " ----------------------------------------- \n";
         }
     }
 
@@ -129,7 +123,7 @@ void GetAllRectangles(std::vector<std::pair<std::int64_t, std::int64_t>>& allRed
 {
     for (size_t i = 0; i < allRedTiles.size(); i++) // point1
     {
-        for (size_t j = 0; j < allRedTiles.size(); j++) // point2
+        for (size_t j = i + 1; j < allRedTiles.size(); j++) // point2
         {
             std::int64_t xMin;
             std::int64_t xMax;
@@ -166,20 +160,13 @@ void GetAllRectangles(std::vector<std::pair<std::int64_t, std::int64_t>>& allRed
             }
 
             Rectangle rec{xMin, xMax, yMin, yMax};
-            if(!rec.FindRectangle(rec, out_allRectangles))
-            {
-                out_allRectangles.push_back(rec);
-            }
+            out_allRectangles.push_back(rec);
         }
     }
 }
 
 bool CheckCollision(Rectangle& rectangle, std::vector<std::pair<std::int64_t, std::int64_t>>& allRedTiles)
 {
-    std::cout << "rectangle p1 :" << rectangle.GetP1().first << ", " << rectangle.GetP1().second << "\n";
-    std::cout << "rectangle p2 :" << rectangle.GetP2().first << ", " << rectangle.GetP2().second << "\n";
-    std::cout << "\n";
-
     for (size_t i = 0; i < allRedTiles.size(); i++)
     {
         std::pair<std::int64_t, std::int64_t> shapeLinePoint1;
@@ -197,100 +184,35 @@ bool CheckCollision(Rectangle& rectangle, std::vector<std::pair<std::int64_t, st
             shapeLinePoint2 = allRedTiles[i + 1];
         }
 
-        std::cout << "current line p1 :" << shapeLinePoint1.first << ", " << shapeLinePoint1.second << "\n";
-        std::cout << "current line p2 :" << shapeLinePoint2.first << ", " << shapeLinePoint2.second << "\n";
-        std::cout << "\n";
-
         if (shapeLinePoint1.first == shapeLinePoint2.first) // vertical
         {
-            //std::cout << " - VERTICAL - " << "\n";
-            /*bool part1 = (shapeLinePoint1.first > rectangle.GetP1().first);
-            bool part2 = (shapeLinePoint1.first < rectangle.GetP2().first);
-            bool part1et2 = ((shapeLinePoint1.first > rectangle.GetP1().first) && (shapeLinePoint1.first < rectangle.GetP2().first));
-            bool part3 = (shapeLinePoint1.second < rectangle.GetP2().second);
-            bool part4 = (shapeLinePoint2.second > rectangle.GetP1().second);
-            bool part3et4 = ((shapeLinePoint1.second < rectangle.GetP2().second) && (shapeLinePoint2.second > rectangle.GetP1().second));
-            bool tout = ((shapeLinePoint1.first > rectangle.GetP1().first) && (shapeLinePoint1.first < rectangle.GetP2().first)) && ((shapeLinePoint1.second < rectangle.GetP2().second) && (shapeLinePoint2.second > rectangle.GetP1().second));
-
-            std::cout << " line_X > RecP1_X : " << part1 << "\n";
-            std::cout << " line_X < RecP2_X : " << part2 << "\n";
-            std::cout << " line_X > RecP1_X && line_X < RecP2_X : " << part1et2 << "\n";
-            std::cout << " lineP1_Y < RecP2_Y : " << part3 << "\n";
-            std::cout << " lineP2_Y > RecP1_Y : " << part4 << "\n";
-            std::cout << " lineP1_Y < RecP2_Y && lineP2_Y > RecP1_Y : " << part3et4 << "\n";
-            std::cout << " collision : " << tout << "\n";
-            std::cout << " -------------------------- \n";
-
-            if (((shapeLinePoint1.first > rectangle.GetP1().first) && (shapeLinePoint1.first < rectangle.GetP2().first)) && ((shapeLinePoint1.second < rectangle.GetP2().second) && (shapeLinePoint2.second > rectangle.GetP1().second)))
-            {
-                return true;
-            }*/
+            int lMax = std::max(shapeLinePoint1.second, shapeLinePoint2.second);
+            int lMin = std::min(shapeLinePoint1.second, shapeLinePoint2.second);
 
             bool conditionX = (shapeLinePoint1.first > rectangle.GetP1().first) && (shapeLinePoint1.first < rectangle.GetP2().first);
-            bool conditionY1 = (rectangle.GetP1().second <= shapeLinePoint1.second && rectangle.GetP2().second >= shapeLinePoint1.second);
-            bool conditionY2 = (rectangle.GetP1().second <= shapeLinePoint2.second && rectangle.GetP2().second >= shapeLinePoint2.second);
+            bool vieilleCond = (lMin < rectangle.GetP2().second) && (lMax > rectangle.GetP1().second);
 
-            std::cout << " conditionX : " << conditionX << "\n";
-            std::cout << " conditionY1 : " << conditionY1 << "\n";
-            std::cout << " conditionY2 : " << conditionY2 << "\n";
-            bool conditionY1et2 = conditionY1 || conditionY2;
-            bool total = conditionX && (conditionY1 || conditionY2);
-            std::cout << " conditionY1 || conditionY2 : " << conditionY1et2 << "\n";
-            std::cout << " total : " << total << "\n";
-            std::cout << " -------------------------- \n";
-
-            if (conditionX && (conditionY1 || conditionY2))
+            if(conditionX && vieilleCond)
             {
                 return true;
             }
         }
         else if (shapeLinePoint1.second == shapeLinePoint2.second) // horizontal
         {
-            //std::cout << " - HORIZONTAL - " << "\n";
-            /*bool part1 = (shapeLinePoint1.second > rectangle.GetP1().second);
-            bool part2 = (shapeLinePoint1.second < rectangle.GetP2().second);
-            bool part1et2 = ((shapeLinePoint1.second > rectangle.GetP1().second) && (shapeLinePoint1.second < rectangle.GetP2().second));
-            bool part3 = (shapeLinePoint1.first < rectangle.GetP2().first);
-            bool part4 = (shapeLinePoint2.first > rectangle.GetP1().first);
-            bool part3et4 = ((shapeLinePoint1.first < rectangle.GetP2().first) && (shapeLinePoint2.first > rectangle.GetP1().first));
-            bool tout = ((shapeLinePoint1.second > rectangle.GetP1().second) && (shapeLinePoint1.second < rectangle.GetP2().second)) && ((shapeLinePoint1.first < rectangle.GetP2().first) && (shapeLinePoint2.first > rectangle.GetP1().first));
-
-            std::cout << " line_Y > RecP1_Y : " << part1 << "\n";
-            std::cout << " line_Y < RecP2_Y : " << part2 << "\n";
-            std::cout << " line_Y > RecP1_Y && line_Y < RecP2_Y : " << part1et2 << "\n";
-            std::cout << " lineP1_X < RecP2_X : " << part3 << "\n";
-            std::cout << " lineP2_X > RecP1_X : " << part4 << "\n";
-            std::cout << " lineP1_X < RecP2_X && lineP2_X > RecP1_X : " << part3et4 << "\n";
-            std::cout << " collision : " << tout << "\n";
-            std::cout << " -------------------------- \n";
-
-            if (((shapeLinePoint1.second > rectangle.GetP1().second) && (shapeLinePoint1.second < rectangle.GetP2().second)) && ((shapeLinePoint1.first < rectangle.GetP2().first) && (shapeLinePoint2.first > rectangle.GetP1().first)))
-            {
-                return true;
-            }*/
+            int lMax = std::max(shapeLinePoint1.first, shapeLinePoint2.first);
+            int lMin = std::min(shapeLinePoint1.first, shapeLinePoint2.first);
 
             bool conditionY = (shapeLinePoint1.second > rectangle.GetP1().second) && (shapeLinePoint1.second < rectangle.GetP2().second);
-            bool conditionX1 = (rectangle.GetP1().first <= shapeLinePoint1.first && rectangle.GetP2().first >= shapeLinePoint1.first);
-            bool conditionX2 = (rectangle.GetP1().first <= shapeLinePoint2.first && rectangle.GetP2().first >= shapeLinePoint2.first);
+            bool vieilleCond = (lMin < rectangle.GetP2().first) && (lMax > rectangle.GetP1().first);
 
-            std::cout << " conditionX : " << conditionY << "\n";
-            std::cout << " conditionY1 : " << conditionX1 << "\n";
-            std::cout << " conditionY2 : " << conditionX2 << "\n";
-            bool conditionY1et2 = conditionX1 || conditionX2;
-            bool total = conditionY && (conditionX1 || conditionX2);
-            std::cout << " conditionY1 || conditionY2 : " << conditionY1et2 << "\n";
-            std::cout << " total : " << total << "\n";
-            std::cout << " -------------------------- \n";
-
-            if (conditionY && (conditionX1 || conditionX2))
+            if(conditionY && vieilleCond)
             {
                 return true;
             }
         }
     }
-    //std::cout << " PAS DE COLLISION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
-    //std::cout << " -------------------------- \n";
-    return false;
+
+    return false; // no collisions
 }
 
 std::int64_t CalculAreaRectangle(Rectangle& rectangle)
@@ -338,15 +260,8 @@ int main()
     {
         if (!CheckCollision(rectangle, allRedTiles))
         {
-            //std::cout << "rectangle point1 :" << rectangle.GetP1().first << ", " << rectangle.GetP1().second << "\n";
-            //std::cout << "rectangle point2 :" << rectangle.GetP2().first << ", " << rectangle.GetP2().second << "\n";
-            std::cout << "\n";
-
             std::int64_t rectangleArea = CalculAreaRectangle(rectangle);
-            //std::cout << "AIRE : " << rectangleArea << "\n";
             finalResult = rectangleArea > finalResult ? rectangleArea : finalResult;
-
-            std::cout << " -------------------------- \n";
         }
     }
 
